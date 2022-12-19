@@ -1,13 +1,25 @@
 const express = require("express");
-const nodemailer = require("nodemailer");
-
 const app = express();
+const nodemailer = require("nodemailer");
+const { json, urlencoded } = require("body-parser");
+const cors = require("cors");
+const helmet = require("helmet");
+const morgan = require("morgan");
+require("dotenv").config();
+
+app.use(helmet());
+app.use(json({ limit: "50mb" }));
+app.use(urlencoded({ extended: true }));
+app.use(cors());
+app.use(morgan("combined"));
+
 app.all("/", (req, res) => {
   console.log("Just got a request!");
   res.send("Yo!");
 });
 
 app.post("/send-message", (req, res) => {
+  console.log(req.body);
   const { message, name, email } = req.body;
 
   // Create the transporter object for sending email
