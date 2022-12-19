@@ -19,16 +19,16 @@ app.all("/", (req, res) => {
 });
 
 app.post("/send-message", (req, res) => {
-  console.log(req.body);
   const { message, name, email } = req.body;
-
   // Create the transporter object for sending email
   const transporter = nodemailer.createTransport({
-    host: "smtp.example.com", // Replace with your SMTP server
+    // dot end env
+
+    host: process.env.HOST, // Replace with your SMTP server
     port: 587,
     auth: {
-      user: "username",
-      pass: "password",
+      user: process.env.EMAIL,
+      pass: process.env.PASSWORD,
     },
   });
 
@@ -43,7 +43,7 @@ app.post("/send-message", (req, res) => {
   // Send the email
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
-      console.error(error);
+      console.log(error);
       res.status(400).send("Failed to send message");
     } else {
       console.log(`Message sent: ${info.response}`);
