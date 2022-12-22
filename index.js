@@ -1,9 +1,7 @@
 const express = require("express");
 const app = express();
 const { google } = require("googleapis");
-const nodemailer = require("nodemailer");
 const { json, urlencoded } = require("body-parser");
-const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
 require("dotenv").config();
