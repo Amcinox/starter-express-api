@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const { google } = require("googleapis");
+const cors = require("cors");
 const { json, urlencoded } = require("body-parser");
 const helmet = require("helmet");
 const morgan = require("morgan");
@@ -11,11 +12,15 @@ const CLIENT_EMAIL = process.env.CLIENT_EMAIL;
 const client = new google.auth.JWT(CLIENT_EMAIL, null, PRIVATE_KEY, [
   "https://www.googleapis.com/auth/spreadsheets",
 ]);
-
+app.use(
+  cors({
+    origin: ["http://localhost:8080", "https://matchedge.football"],
+  })
+);
 app.use(helmet());
 app.use(json({ limit: "50mb" }));
 app.use(urlencoded({ extended: true }));
-// app.use(cors());
+
 app.use(morgan("combined"));
 
 app.all("/", (req, res) => {
