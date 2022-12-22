@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const { google } = require("googleapis");
 const nodemailer = require("nodemailer");
 const { json, urlencoded } = require("body-parser");
 const cors = require("cors");
@@ -7,10 +8,16 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 require("dotenv").config();
 
+const PRIVATE_KEY = process.env.PRIVATE_KEY.replace(/\\n/g, "\n");
+const CLIENT_EMAIL = process.env.CLIENT_EMAIL;
+const client = new google.auth.JWT(CLIENT_EMAIL, null, PRIVATE_KEY, [
+  "https://www.googleapis.com/auth/spreadsheets",
+]);
+
 app.use(helmet());
 app.use(json({ limit: "50mb" }));
 app.use(urlencoded({ extended: true }));
-app.use(cors());
+// app.use(cors());
 app.use(morgan("combined"));
 
 app.all("/", (req, res) => {
@@ -18,37 +25,28 @@ app.all("/", (req, res) => {
   res.send("Yo!");
 });
 
-app.post("/send-message", (req, res) => {
-  const { message, name, email } = req.body;
-  // Create the transporter object for sending email
-  const transporter = nodemailer.createTransport({
-    // dot end env
-
-    host: process.env.HOST, // Replace with your SMTP server
-    port: 587,
-    auth: {
-      user: process.env.EMAIL,
-      pass: process.env.PASSWORD,
-    },
-  });
-
-  // Set up the email details
-  const mailOptions = {
-    from: '"My App" <no-reply@example.com>',
-    to: "amcinox@gmail.com",
-    subject: "New Message",
-    text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
-  };
-
-  // Send the email
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.log(error);
-      res.status(400).send("Failed to send message");
-    } else {
-      console.log(`Message sent: ${info.response}`);
-      res.sendStatus(200);
-    }
-  });
+app.get("/bets", async (req, res) => {
+  const sheets = google.sheets({ version: "v4", auth: client });
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: process.env.SHEET_ID,
+      range: "Sheet1!A2:E30",
+    });
+    const list = response.data.values;
+    const filter = list.map((item) => {
+      return {
+        bet: item[0],
+        subtitle: item[1],
+        imageURL: item[2],
+        description: item[3],
+        link: item[4],
+      };
+    });
+    res.send(filter);
+  } catch (error) {
+    console.log(error);
+    res.send("Error");
+  }
 });
+
 app.listen(process.env.PORT || 3000);
