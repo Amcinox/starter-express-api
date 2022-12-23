@@ -33,7 +33,7 @@ app.get("/bets", async (req, res) => {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SHEET_ID,
-      range: "Sheet1!A2:E30",
+      range: "Sheet1!A2:H30",
     });
     const list = response.data.values;
     const filter = list.map((item) => {
@@ -43,6 +43,9 @@ app.get("/bets", async (req, res) => {
         imageURL: item[2],
         description: item[3],
         link: item[4],
+        startDate: item[5],
+        endDate: item[6],
+        isAuth: item[7],
       };
     });
     res.send(filter);
