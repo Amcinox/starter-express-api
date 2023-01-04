@@ -33,21 +33,27 @@ app.get("/bets", async (req, res) => {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SHEET_ID,
-      range: "Sheet1!A2:H30",
+      range: "Sheet1!A2:K30",
     });
     const list = response.data.values;
-    const filter = list.map((item) => {
-      return {
-        bet: item[0],
-        subtitle: item[1],
-        imageURL: item[2],
-        description: item[3],
-        link: item[4],
-        startDate: item[5],
-        endDate: item[6],
-        isAuth: item[7],
-      };
-    });
+    const filter = list
+      .map((item) => {
+        return {
+          bet: item[0],
+          subtitle: item[1],
+          imageURL: item[2],
+          description: item[3],
+          link: item[4],
+          startDate: item[5],
+          endDate: item[6],
+          isAuth: item[7],
+          // Display
+          home: item[8],
+          offer: item[9],
+          tips: item[10],
+        };
+      })
+      .filter((item) => item.bet !== "");
     res.send(filter);
   } catch (error) {
     console.log(error);
