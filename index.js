@@ -33,7 +33,7 @@ app.get("/bets", async (req, res) => {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SHEET_ID,
-      range: "Sheet1!A2:K30",
+      range: "BetsList!A2:N30",
     });
     const list = response.data.values;
     const filter = list
@@ -51,6 +51,11 @@ app.get("/bets", async (req, res) => {
           home: item[8],
           offer: item[9],
           tips: item[10],
+
+          // Promotion
+          promotion: item[11],
+          position: item[12],
+          duration: item[13],
         };
       })
       .filter((item) => item.bet !== "");
